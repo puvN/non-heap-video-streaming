@@ -24,11 +24,15 @@ class Controller {
 
     @SuppressWarnings("java:S1215")
     @PostMapping()
-    String saveMovie(@RequestParam("file") MultipartFile file, @RequestParam("name") String name) throws IOException {
+    ResponseEntity<String> saveMovie(@RequestParam("file") MultipartFile file, @RequestParam("name") String name) throws IOException {
+        if (file.getContentType() != null && !file.getContentType().equals("video/mp4")) {
+            log.error("not mp4 video had been uploaded");
+            return ResponseEntity.badRequest().body("mp4 video is supported only!");
+        }
         //by default this way of reading a MultipartFile is limited by int size. If case of very large files, tou may face "Required array length is too large" error
         storage.put(name, file);
         log.info(Information.getMemoryInformation(storage.getTotalNoHeapMemoryUsage()));
-        return "Video saved successfully.";
+        return ResponseEntity.ok("Video saved successfully.");
     }
 
     @GetMapping("{name}")
